@@ -50,18 +50,27 @@ from openstaande_kosten
 
 --Opdracht G:
 --Toon 100 movies die tot nu toe het minst bekeken zijn, gesorteerd naar het aantal keren dat ze gekeken werden. Dit houdt ook 0 keer in [movie title, number of times watched]. Maak een View voor deze informatiebehoefte. 
-DROP VIEW minst_bekeken_videos;
-go
 
-CREATE VIEW minst_bekeken_videos AS
-select TOP (100) M.title, SUM(M.movie_id) AS malen_bekeken
-from Movie M inner join WatchHistory WH on M.movie_id = WH.movie_id
-group by M.title
-order by SUM(M.movie_id)
-go
-
-select *
-from minst_bekeken_videos
 
 --Opdracht H
 --Alle movies die in de afgelopen twee maanden het meest bekeken zijn, gesorteerd naar het aantal keren dat ze gekeken werden. Toon alleen movies die minimaal één keer bekeken zijn [movie title, publication_year, number of times watched]. Maak een View voor deze informatiebehoefte. De sortering kun je niet binnen de view doen, laat die buiten de view. 
+
+
+--Opdracht I
+--Alle movies die meer dan 8 genres hebben [title, publication_year]
+
+
+--Opdracht J
+--Alle vrouwen die in Horror movies en Family movies gespeeld hebben [firstname,lastname]. 
+
+
+--Opdracht K
+--De director die tot nu toe de meeste films geproduceerd heeft [firstname, lastname]. 
+
+
+--Opdracht L
+--Alle Genres en het percentage dat de films uit het bepaalde genre uitmaken t.o.v. het totale aantal films [genre, percentage], gesorteerd op meest populaire genre. Maak een View voor deze informatiebehoefte. Je mag ook eerst één of meerdere (hulp-)views maken om de informatiebehoefte op te lossen. 
+
+
+--Opdracht M
+--Gebruikers [mail_adress] en het gemiddelde aantal films die elke gebruiker per dag kijkt. Toon alleen gebruikers die gemiddeld 2 of meer films per dag kijken, met het grootste gemiddelde bovenaan. Maak een View voor deze informatiebehoefte. Je mag ook eerst één of meerdere (hulp-)views maken om de informatiebehoefte op te lossen. 
