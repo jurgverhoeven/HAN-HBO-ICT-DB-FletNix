@@ -1,3 +1,6 @@
+--Gemaakt door Juriaan Pijls & Jurg Verhoeven
+--HAN HBO-ICT
+
 use FletNix
 go
 
@@ -348,8 +351,8 @@ FROM MYIMDB.dbo.Imported_Cast
 
 INSERT INTO FletNix.dbo.Person (person_id, lastname, firstname, gender)
 SELECT DISTINCT	CAST(Id as int)+845465 as person_id,
-				LEFT(FName,50) as fistname,
 				LEFT(LName,50) as lastname,
+				LEFT(FName,50) as fistname,
 				NULL as gender
 FROM MYIMDB.dbo.Imported_Directors
 

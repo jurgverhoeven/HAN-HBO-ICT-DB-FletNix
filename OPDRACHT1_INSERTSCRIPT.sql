@@ -1,4 +1,7 @@
-﻿use FletNix
+﻿--Gemaakt door Juriaan Pijls & Jurg Verhoeven
+--HAN HBO-ICT
+
+use FletNix
 go
 
 

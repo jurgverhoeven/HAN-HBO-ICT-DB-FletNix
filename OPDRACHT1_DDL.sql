@@ -1,11 +1,9 @@
+--Gemaakt door Juriaan Pijls & Jurg Verhoeven
+--HAN HBO-ICT
+
 --Geboortedatum niet na huidige datum
-
 --Email moet @ bevatten
-
 --URL heeft .
-
-
-
 
 use master
 go

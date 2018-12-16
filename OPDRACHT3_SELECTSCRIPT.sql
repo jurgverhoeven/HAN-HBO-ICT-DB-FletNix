@@ -1,3 +1,6 @@
+--Gemaakt door Juriaan Pijls & Jurg Verhoeven
+--HAN HBO-ICT
+
 use FletNix
 go
 
@@ -50,23 +53,62 @@ from openstaande_kosten
 
 --Opdracht G:
 --Toon 100 movies die tot nu toe het minst bekeken zijn, gesorteerd naar het aantal keren dat ze gekeken werden. Dit houdt ook 0 keer in [movie title, number of times watched]. Maak een View voor deze informatiebehoefte. 
+DROP VIEW top_100_minst_bekeken_films
+go
 
+CREATE VIEW top_100_minst_bekeken_films AS
+	select top(100) M.title, COUNT(WH.movie_id) AS [number of times watched]
+	from Movie M left join WatchHistory WH on M.movie_id = WH.movie_id
+	group by WH.movie_id, M.title
+	order by COUNT(WH.movie_id) asc
+go
+
+select *
+from top_100_minst_bekeken_films
 
 --Opdracht H
 --Alle movies die in de afgelopen twee maanden het meest bekeken zijn, gesorteerd naar het aantal keren dat ze gekeken werden. Toon alleen movies die minimaal één keer bekeken zijn [movie title, publication_year, number of times watched]. Maak een View voor deze informatiebehoefte. De sortering kun je niet binnen de view doen, laat die buiten de view. 
+DROP VIEW minst_bekeken_in_2_maanden
+GO
 
+CREATE VIEW minst_bekeken_in_2_maanden AS
+	select M.title, M.publication_year, COUNT(WH.movie_id) AS [number of times watched]
+	from Movie M left join WatchHistory WH on M.movie_id = WH.movie_id
+	where WH.watch_date > DATEADD(month, -2, GETDATE())
+	group by WH.movie_id, M.title, M.publication_year
+go
+
+select *
+from minst_bekeken_in_2_maanden
+order by [number of times watched]
 
 --Opdracht I
 --Alle movies die meer dan 8 genres hebben [title, publication_year]
-
+select title, publication_year
+from Movie
+where movie_id in (	select movie_id
+						from Movie_Genre
+						group by movie_id
+						having COUNT(genre_name) > 8)
 
 --Opdracht J
 --Alle vrouwen die in Horror movies en Family movies gespeeld hebben [firstname,lastname]. 
-
+select firstname, lastname
+from Person
+where person_id in (	select person_id
+						from Movie_Cast
+						where movie_id in (	select movie_id
+											from Movie_Genre
+											where genre_name in ('Horror', 'Family')))
 
 --Opdracht K
 --De director die tot nu toe de meeste films geproduceerd heeft [firstname, lastname]. 
-
+select firstname, lastname
+from Person
+where person_id in (	select top (1) person_id
+						from Movie_Directors
+						group by person_id
+						order by COUNT(movie_id) desc)
 
 --Opdracht L
 --Alle Genres en het percentage dat de films uit het bepaalde genre uitmaken t.o.v. het totale aantal films [genre, percentage], gesorteerd op meest populaire genre. Maak een View voor deze informatiebehoefte. Je mag ook eerst één of meerdere (hulp-)views maken om de informatiebehoefte op te lossen. 
@@ -74,3 +116,4 @@ from openstaande_kosten
 
 --Opdracht M
 --Gebruikers [mail_adress] en het gemiddelde aantal films die elke gebruiker per dag kijkt. Toon alleen gebruikers die gemiddeld 2 of meer films per dag kijken, met het grootste gemiddelde bovenaan. Maak een View voor deze informatiebehoefte. Je mag ook eerst één of meerdere (hulp-)views maken om de informatiebehoefte op te lossen. 
+

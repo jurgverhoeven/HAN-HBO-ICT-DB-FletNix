@@ -1,3 +1,6 @@
+--Gemaakt door Juriaan Pijls & Jurg Verhoeven
+--HAN HBO-ICT
+
 --Unieke username
 insert into Customer (firstname, lastname, customer_mail_address, payment_method, payment_card_number, contract_type, subscription_start, user_name, password, country_name)
 	Values ('Ruben', 'Kokken', 'ikheb1geheimemailadres@gmail.com', 'Mastercard', '11003399338844774596', 'Basic', '2016-09-01', 'Rkokken', 'Bowlen', 'The Netherlands');
