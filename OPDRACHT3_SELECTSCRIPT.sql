@@ -112,24 +112,26 @@ where person_id in (	select top (1) person_id
 
 --Opdracht L
 --Alle Genres en het percentage dat de films uit het bepaalde genre uitmaken t.o.v. het totale aantal films [genre, percentage], gesorteerd op meest populaire genre. Maak een View voor deze informatiebehoefte. Je mag ook eerst één of meerdere (hulp-)views maken om de informatiebehoefte op te lossen. 
-CREATE VIEW Percentage_Films AS
-select genre_name,
-		count(genre_name) AS Aantal,
-		count(genre_name) * 100 / (select count(*) from Movie_Genre) as movie_percent
-from Movie_Genre 
-group by genre_name
-
+DROP VIEW Percentage_Films
 go
+
+CREATE VIEW Percentage_Films AS
+	select genre_name,
+			count(genre_name) AS Aantal,
+			count(genre_name) * 100 / (select count(*) from Movie_Genre) as movie_percent
+	from Movie_Genre 
+	group by genre_name
+go
+
+
 --Opdracht M
 --Gebruikers [mail_adress] en het gemiddelde aantal films die elke gebruiker per dag kijkt. Toon alleen gebruikers die gemiddeld 2 of meer films per dag kijken, met het grootste gemiddelde bovenaan. Maak een View voor deze informatiebehoefte. Je mag ook eerst één of meerdere (hulp-)views maken om de informatiebehoefte op te lossen. 
+DROP VIEW Gemiddelde_film_tijd
+go
 
 CREATE view Gemiddelde_film_tijd AS
-select C.customer_mail_address, W.watch_date
-from Customer C inner join WatchHistory W
-on C.customer_mail_address = W.customer_mail_address
-Where W.watch_date = (select watch_date
-						from WatchHistory
-						where watch_date is not null
-						group by watch_date
-						having Count(*) >=2)
-group by C.customer_mail_address, W.watch_date
+	select WH.customer_mail_address, (COUNT(movie_id)/DATEDIFF(DAY, subscription_start, GETDATE())) as [gemiddelde aantal films]
+	from WatchHistory WH inner join Customer C on WH.customer_mail_address = C.customer_mail_address
+	group by WH.customer_mail_address, subscription_start
+	having (COUNT(movie_id)/DATEDIFF(DAY, subscription_start, GETDATE())) > 1
+go
