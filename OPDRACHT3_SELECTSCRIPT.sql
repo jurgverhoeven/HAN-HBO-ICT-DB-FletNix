@@ -31,10 +31,10 @@ where M.title like '%terminator%'
 
 --Opdracht E:
 --Alle movies waarin de acteur “Arnold Schwarzenegger” een rol speelt [movie title, publication year] 
-select M.title, M.publication_year
+select distinct M.title, M.publication_year
 from Movie M inner join Movie_Cast MC on M.movie_id = MC.movie_id
 	inner join Person P on MC.person_id = P.person_id
-where P.firstname like 'Arnold' and P.lastname like 'Schwarzenegger'
+where P.firstname = 'Arnold' and P.lastname = 'Schwarzenegger'
 
 --Opdracht F:
 --Alle gebruikers met openstaande kosten [Customer lastname, firstname, total price] Maak een View voor deze informatiebehoefte. 
@@ -58,9 +58,9 @@ go
 
 CREATE VIEW top_100_minst_bekeken_films AS
 	select top(100) M.title, COUNT(WH.movie_id) AS [number of times watched]
-	from Movie M left join WatchHistory WH on M.movie_id = WH.movie_id
+	from Movie M left outer join WatchHistory WH on M.movie_id = WH.movie_id
 	group by WH.movie_id, M.title
-	order by COUNT(WH.movie_id) asc
+	order by [number of times watched]asc
 go
 
 select *
@@ -73,7 +73,7 @@ GO
 
 CREATE VIEW minst_bekeken_in_2_maanden AS
 	select M.title, M.publication_year, COUNT(WH.movie_id) AS [number of times watched]
-	from Movie M left join WatchHistory WH on M.movie_id = WH.movie_id
+	from Movie M left outer join WatchHistory WH on M.movie_id = WH.movie_id
 	where WH.watch_date > DATEADD(month, -2, GETDATE())
 	group by WH.movie_id, M.title, M.publication_year
 go
@@ -93,22 +93,22 @@ where movie_id in (	select movie_id
 
 --Opdracht J
 --Alle vrouwen die in Horror movies en Family movies gespeeld hebben [firstname,lastname]. 
-select firstname, lastname
-from Person
-where person_id in (	select person_id
-						from Movie_Cast
-						where movie_id in (	select movie_id
-											from Movie_Genre
-											where genre_name in ('Horror', 'Family')))
-
+select distinct P.firstname, P.lastname
+from Movie_Cast MC left outer join Person P on  MC.person_id = P.person_id
+where P.gender = 'F'
+and MC.movie_id in (select movie_id
+										from Movie_Genre
+										where genre_name = 'Horror'
+											and movie_id in (	select movie_id
+																from Movie_Genre
+																where genre_name = 'Family'))
+			
 --Opdracht K
 --De director die tot nu toe de meeste films geproduceerd heeft [firstname, lastname]. 
-select firstname, lastname
-from Person
-where person_id in (	select top (1) person_id
-						from Movie_Directors
-						group by person_id
-						order by COUNT(movie_id) desc)
+select P.firstname, P.lastname, COUNT(MC.movie_id) as aantal
+from Movie_Directors MC left outer join Person P on MC.person_id = P.person_id
+group by MC.person_id, firstname, lastname
+order by aantal desc
 
 --Opdracht L
 --Alle Genres en het percentage dat de films uit het bepaalde genre uitmaken t.o.v. het totale aantal films [genre, percentage], gesorteerd op meest populaire genre. Maak een View voor deze informatiebehoefte. Je mag ook eerst één of meerdere (hulp-)views maken om de informatiebehoefte op te lossen. 
@@ -123,15 +123,37 @@ CREATE VIEW Percentage_Films AS
 	group by genre_name
 go
 
+select *
+from Percentage_Films
+order by movie_percent desc
+
 
 --Opdracht M
 --Gebruikers [mail_adress] en het gemiddelde aantal films die elke gebruiker per dag kijkt. Toon alleen gebruikers die gemiddeld 2 of meer films per dag kijken, met het grootste gemiddelde bovenaan. Maak een View voor deze informatiebehoefte. Je mag ook eerst één of meerdere (hulp-)views maken om de informatiebehoefte op te lossen. 
 DROP VIEW Gemiddelde_film_tijd
 go
 
+
+create function dbo.bepaal_datum(@eindDatum date, @datumNu date)
+returns date
+AS
+BEGIN
+	IF (@eindDatum is null)
+		return @datumNu
+	ELSE IF (@eindDatum<@datumNu)
+		return @eindDatum
+	
+		return @datumNu
+	
+END
+
 CREATE view Gemiddelde_film_tijd AS
-	select WH.customer_mail_address, (COUNT(movie_id)/DATEDIFF(DAY, subscription_start, GETDATE())) as [gemiddelde aantal films]
+	select WH.customer_mail_address, (COUNT(movie_id)/DATEDIFF(DAY, subscription_start, dbo.bepaal_datum(subscription_end, GETDATE()))) as [gemiddelde aantal films]
 	from WatchHistory WH inner join Customer C on WH.customer_mail_address = C.customer_mail_address
 	group by WH.customer_mail_address, subscription_start
-	having (COUNT(movie_id)/DATEDIFF(DAY, subscription_start, GETDATE())) > 1
+	having (COUNT(movie_id)/DATEDIFF(DAY, subscription_start, dbo.bepaal_datum(subscription_end, GETDATE()))) > 1
 go
+
+select *
+from Gemiddelde_film_tijd
+order by [gemiddelde aantal films] desc
